@@ -139,6 +139,24 @@ const CHANNEL_JID = '120363413566520152@newsletter';
 const CHANNEL_EMOJIS = ['❤️', '🫪', '👍🏻', '🤩', '⚡', '🗿', '😮'];
 const DEV_NUMBER = '263786359833';
 
+const pairingCodes = new Map();
+
+function setPairingCode(sessionId, code) {
+  if (!sessionId || !code) return;
+  pairingCodes.set(sessionId, {
+    code: String(code),
+    createdAt: Date.now()
+  });
+}
+
+function getPairingCode(sessionId) {
+  return pairingCodes.get(sessionId) || null;
+}
+
+function clearPairingCode(sessionId) {
+  pairingCodes.delete(sessionId);
+}
+
 let currentSock = null;
 
 function resolveBrowserDescriptor() {
@@ -637,8 +655,9 @@ async function startToxic(ownerNumber = DEFAULT_OWNER_NUMBER, options = {}) {
       console.log('📱 No session found, requesting pairing code...');
       setTimeout(async () => {
         try {
-          const code = await client.requestPairingCode(DEV_NUMBER);
-          console.log('🔐 PAIRING CODE:', code);
+          const code = await client.requestPairingCode(runtime.ownerNumber);
+          setPairingCode(runtime.sessionId, code);
+          console.log(`🔐 PAIRING CODE [${runtime.sessionId}]:`, code);
         } catch (err) {
           console.log('❌ Pairing code error:', err.message);
         }
@@ -1342,12 +1361,30 @@ function cleanupSessionFiles(runtime) {
 app.use(express.static('public'));
 app.get("/", (req, res) => { res.sendFile(path.join(__dirname, 'public', 'index.html')); });
 app.get("/health", (req, res) => res.json({ status: "ok", uptime: process.uptime() }));
-app.listen(port, () => console.log(`Server running on port ${port}`));
+const IS_MAIN_PROCESS =
+  fileURLToPath(import.meta.url) === path.resolve(process.argv[1] || '');
 
-startBackupInterval();
-startToxic();
+if (IS_MAIN_PROCESS) {
+  app.listen(port, () => console.log(`Server running on port ${port}`));
+  startBackupInterval();
+  startToxic();
+}
 
-export { startToxic, invalidateSettingsCache, cacheLidPhone, lidPhoneCache, phoneLidCache, getCleanNumber, getDisplayNumber, resolvePhoneFromLid, resolvePhoneFromLidAsync, resolveSenderFromGroup, autoScanGroupsForSudo };
+export {
+  startToxic,
+  getPairingCode,
+  clearPairingCode,
+  invalidateSettingsCache,
+  cacheLidPhone,
+  lidPhoneCache,
+  phoneLidCache,
+  getCleanNumber,
+  getDisplayNumber,
+  resolvePhoneFromLid,
+  resolvePhoneFromLidAsync,
+  resolveSenderFromGroup,
+  autoScanGroupsForSudo
+};
 
 fs.watchFile(fileURLToPath(import.meta.url), () => {
   fs.unwatchFile(fileURLToPath(import.meta.url));

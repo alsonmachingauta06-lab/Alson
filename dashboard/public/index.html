@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>ALSON-XMD Dashboard</title>
+
+    <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+
+<div class="background"></div>
+<div class="background-overlay"></div>
+
+<div class="app">
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brandLogo">A</div>
+
+            <div>
+                <h1>ALSON-XMD</h1>
+                <span>CONTROL CENTER</span>
+            </div>
+        </div>
+
+        <nav>
+
+            <button class="navItem active" data-page="dashboard">
+                <span>⌂</span>
+                Dashboard
+            </button>
+
+            <button class="navItem" data-page="bots">
+                <span>🤖</span>
+                My Bots
+            </button>
+
+            <button class="navItem" data-page="deploy">
+                <span>🚀</span>
+                Deploy Bot
+            </button>
+
+            <button class="navItem" data-page="github">
+                <span>◈</span>
+                GitHub
+            </button>
+
+            <button class="navItem" data-page="sessions">
+                <span>📱</span>
+                WhatsApp
+            </button>
+
+        </nav>
+
+        <div class="sidebarBottom">
+
+            <div class="aiMini">
+                <div class="aiIcon">✦</div>
+
+                <div>
+                    <strong>Alson AI</strong>
+                    <small>Online assistant</small>
+                </div>
+
+                <span class="onlineDot"></span>
+            </div>
+
+            <div class="owner">
+                ALSON-XMD<br>
+                <span>Alson Machingauta</span>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div>
+                <span class="eyebrow">CONTROL CENTER</span>
+                <h2>ALSON-XMD Dashboard</h2>
+            </div>
+
+            <div class="system">
+                <span class="onlineDot"></span>
+                SYSTEM ONLINE
+            </div>
+
+        </header>
+
+
+        <section class="hero">
+
+            <div class="heroContent">
+
+                <span class="eyebrow">WELCOME BACK</span>
+
+                <h3>
+                    Your bots.<br>
+                    <span>Your control.</span>
+                </h3>
+
+                <p>
+                    Manage your ALSON bots, GitHub repositories,
+                    WhatsApp sessions and deployments from one place.
+                </p>
+
+                <div class="heroButtons">
+                    <button class="primaryButton" data-page="deploy">
+                        🚀 Deploy Your Own ALSON Bot
+                    </button>
+
+                    <button class="secondaryButton" data-page="github">
+                        ◈ Browse GitHub
+                    </button>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="stats">
+
+            <div class="statCard">
+                <div class="statIcon purple">🤖</div>
+
+                <div>
+                    <span>BOTS</span>
+                    <strong id="botCount">0</strong>
+                </div>
+            </div>
+
+            <div class="statCard">
+                <div class="statIcon green">●</div>
+
+                <div>
+                    <span>ONLINE</span>
+                    <strong id="onlineCount">0</strong>
+                </div>
+            </div>
+
+            <div class="statCard">
+                <div class="statIcon blue">📱</div>
+
+                <div>
+                    <span>PAIRED</span>
+                    <strong id="pairedCount">0</strong>
+                </div>
+            </div>
+
+            <div class="statCard">
+                <div class="statIcon gold">🚀</div>
+
+                <div>
+                    <span>DEPLOYMENTS</span>
+                    <strong id="deploymentCount">0</strong>
+                </div>
+            </div>
+
+        </section>
+
+
+        <section class="contentGrid">
+
+            <div class="panel botsPanel">
+
+                <div class="panelHeader">
+
+                    <div>
+                        <span class="eyebrow">BOT FLEET</span>
+                        <h3>Your ALSON Bots</h3>
+                    </div>
+
+                    <button class="smallButton" data-page="bots">
+                        View all →
+                    </button>
+
+                </div>
+
+                <div id="botList" class="botList">
+
+                    <div class="emptyState">
+                        <div>🤖</div>
+                        <strong>No bots detected yet</strong>
+                        <p>
+                            Connect GitHub repositories and deploy
+                            your first ALSON bot.
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="panel aiPanel">
+
+                <div class="aiHeader">
+
+                    <div class="aiAvatar">
+                        ✦
+                    </div>
+
+                    <div>
+                        <span class="eyebrow">ALSON AI</span>
+                        <h3>AI Assistant</h3>
+                    </div>
+
+                    <span class="onlineBadge">
+                        ● ONLINE
+                    </span>
+
+                </div>
+
+
+                <div class="aiMessage">
+
+                    <strong>
+                        Welcome to Alson-XMD Dashboard.
+                    </strong>
+
+                    <p>
+                        I'm Alson AI. I can guide you through
+                        deployments, GitHub repositories,
+                        WhatsApp pairing and bot management.
+                    </p>
+
+                </div>
+
+
+                <div class="aiActions">
+
+                    <button data-page="deploy">
+                        🚀 Deploy my bot
+                    </button>
+
+                    <button data-page="github">
+                        ◈ Explore GitHub
+                    </button>
+
+                    <button data-page="sessions">
+                        📱 Manage WhatsApp
+                    </button>
+
+                    <button>
+                        🔧 Troubleshoot
+                    </button>
+
+                </div>
+
+
+                <div class="aiInput">
+
+                    <input
+                        id="aiInput"
+                        type="text"
+                        placeholder="Ask Alson AI..."
+                    >
+
+                    <button id="aiSend">
+                        ➤
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="managementWorkspace">
+
+            <div class="panel managementPanel">
+
+                <div class="panelHeader">
+                    <div>
+                        <span class="eyebrow">WHATSAPP CENTER</span>
+                        <h3>WhatsApp Sessions</h3>
+                    </div>
+
+                    <div class="workspaceMeta">
+                        <span id="sessionCount">0 sessions</span>
+                    </div>
+                </div>
+
+                <div id="statusSummary" class="statusSummary">
+                    <span>● Loading...</span>
+                </div>
+
+                <div id="sessionList" class="sessionList">
+                    <div class="emptyState">
+                        <div>📱</div>
+                        <strong>Loading WhatsApp sessions...</strong>
+                        <p>Please wait.</p>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="panel managementPanel">
+
+                <div class="panelHeader">
+                    <div>
+                        <span class="eyebrow">GITHUB CENTER</span>
+                        <h3>Repositories</h3>
+                    </div>
+
+                    <div id="githubUser" class="workspaceMeta">
+                        GitHub
+                    </div>
+                </div>
+
+                <div id="repoList" class="repoList">
+                    <div class="emptyState">
+                        <div>◈</div>
+                        <strong>Loading repositories...</strong>
+                        <p>Please wait.</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <footer>
+            ALSON-XMD • Alson Machingauta
+        </footer>
+
+    </main>
+
+</div>
+
+<script src="/app.js"></script>
+
+</body>
+</html>
