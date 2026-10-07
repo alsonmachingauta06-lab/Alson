@@ -1,0 +1,8 @@
+node_modules/
+sessions/
+.env
+.env.*
+config.env
+*.log
+*.key
+*.pem
