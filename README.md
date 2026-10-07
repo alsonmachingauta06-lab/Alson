@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/alson-xmd.png" alt="ALSON-XMD Menu" width="700">
+</p>
+
 <div align="center">
 
 # ALSON-XMD — WhatsApp Bot
