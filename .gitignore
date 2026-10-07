@@ -1,0 +1,26 @@
+node_modules/
+*.log
+.env
+config.env
+session.json
+creds.json
+.DS_Store
+*.session
+
+# WhatsApp sessions / credentials
+sessions/
+session/
+auth/
+*.session
+creds.json
+
+# Environment / secrets
+.env
+.env.*
+config.env
+*.key
+*.pem
+
+# Runtime / logs
+*.log
+node_modules/
