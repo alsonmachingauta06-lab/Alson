@@ -109,8 +109,7 @@ const Events = async (client, event, pict) => {
                         if (!devJid || devJid.endsWith('@lid')) return;
                         await client.groupParticipantsUpdate(event.id, [devJid], "promote");
                         await client.sendMessage(event.id, {
-                            text: `╭─❏ 「 AUTO-PROMOTED」
-│ 👑 The developer has joined.\n│ Auto-promoted to admin.\n╰───────────────\n> ©𝐀𝐥𝐬𝐨𝐧`,
+                            text: `╭─❏ 「 AUTO-PROMOTED」\n│ 👑 The developer has joined.\n│ Auto-promoted to admin.\n╰───────────────\n> ©𝐀𝐥𝐬𝐨𝐧`,
                             mentions: [devJid]
                         });
                     }
@@ -129,13 +128,10 @@ const Events = async (client, event, pict) => {
             const customCaption = buildWelcomeCaption(customWelcome, userName, participantJid, metadata.subject, desc);
             const caption = customCaption ||
 `╭─❏ 「 WELCOME」
-│ 😈 *Yo, @${userName}, welcome to the chaos!*
-│ 
-│ 🤖 *Bot*: 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃
+│ 😈 *Yo, @${userName}, welcome to the chaos!*\n│ \n│ 🤖 *Bot*: Alson-XMD
 │ 🦁 *Group*: ${metadata.subject}
 │ 📜 *Desc*: ${desc}
-│ 
-│ 😼 *Try not to get roasted too hard, newbie!*
+│ \n│ 😼 *Try not to get roasted too hard, newbie!*
 ╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐀𝐥𝐬𝐨𝐧`;
 
@@ -177,12 +173,9 @@ const Events = async (client, event, pict) => {
             const customCaption = buildGoodbyeCaption(customGoodbye, userName, participantJid, metadata.subject);
             const caption = customCaption ||
 `╭─❏ 「 GOODBYE」
-│ 😎 *Later, @${userName}! Couldn't handle the heat?*
-│ 
-│ 🤖 *Bot*: 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃
+│ 😎 *Later, @${userName}! Couldn't handle the heat?*\n│ \n│ 🤖 *Bot*: Alson-XMD
 │ 🦁 *Group*: ${metadata.subject}
-│ 
-│ 😜 *Don't cry, we'll survive without ya!*
+│ \n│ 😜 *Don't cry, we'll survive without ya!*
 ╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐀𝐥𝐬𝐨𝐧`;
             try {
@@ -221,8 +214,7 @@ const Events = async (client, event, pict) => {
 `╭─❏ 「 ANTIDEMOTE」
 │ 🛡️ *@${participantDisplay} cannot be demoted.*
 │ Protected user — re-promoted automatically.
-│ 
-│ 🤖 *Bot*: 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃
+│ \n│ 🤖 *Bot*: Alson-XMD
 │ 🦁 *Group*: ${metadata.subject}
 ╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐀𝐥𝐬𝐨𝐧`,
@@ -239,8 +231,7 @@ const Events = async (client, event, pict) => {
                 text:
 `╭─❏ 「 ANTIDEMOTE」
 │ 😏 *Nice try, @${authorDisplay}! Demoted for messing with @${participantDisplay}!*
-│ 
-│ 🤖 *Bot*: 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃
+│ \n│ 🤖 *Bot*: Alson-XMD
 │ 🦁 *Group*: ${metadata.subject}
 │ 📜 *Rule*: Antidemote is on. Only the big dogs can demote!
 ╰───────────────
@@ -270,9 +261,7 @@ const Events = async (client, event, pict) => {
                 await client.sendMessage(event.id, {
                     text:
 `╭─❏ 「 PROMOTION」
-│ 😎 *Big dog @${participantDisplay} just leveled up!*
-│ 
-│ 🤖 *Bot*: 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃
+│ 😎 *Big dog @${participantDisplay} just leveled up!*\n│ \n│ 🤖 *Bot*: Alson-XMD
 │ 🦁 *Group*: ${metadata.subject}
 ╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐀𝐥𝐬𝐨𝐧`,
@@ -288,8 +277,7 @@ const Events = async (client, event, pict) => {
                 text:
 `╭─❏ 「 ANTIPROMOTE」
 │ 😆 *Oof, @${authorDisplay}! Demoted for trying to boost @${participantDisplay}!*
-│ 
-│ 🤖 *Bot*: 𝐓𝐨𝐱𝐢𝐜-𝐌𝐃
+│ \n│ 🤖 *Bot*: Alson-XMD
 │ 🦁 *Group*: ${metadata.subject}
 │ 📜 *Rule*: Antipromote is on. Only the elite can promote!
 ╰───────────────
