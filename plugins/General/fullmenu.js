@@ -12,7 +12,7 @@ export default {
   run: async (context) => {
     const { client, m, totalCommands, mode, pict } = context;
     await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
-    const botname = '𝐓𝐨𝐱𝐢𝐜-𝐌𝐃';
+    const botname = 'ALSON-XM𝐃';
 
     const settings = await getSettings();
     const effectivePrefix = settings.prefix || '';
