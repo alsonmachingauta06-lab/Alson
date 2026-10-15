@@ -1,4 +1,6 @@
 const DEV_NUMBER = '263786359833';
+const NEWSLETTER_JID = '120363411442434414@newsletter';
+const NEWSLETTER_NAME = 'Alson XMD';
 
 const normalizeNumber = (jid) => {
     if (!jid) return '';
@@ -11,11 +13,15 @@ const middleware = async (context, next) => {
 
     if (!m.isGroup) {
         return m.reply(`╭─❏ 「 Gʀᴏᴜᴘ Oɴʟʏ」
-│ This command isn't for lone wolves.\n│ Try again in a group, you loner.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐀𝐥𝐬𝐨𝐧`);
+│ This command isn't for lone wolves.\n│ Try again in a group, you loner.
+╰───────────────
+> ©𝐏𝐎𝐖𝐄𝐑𝐄𝐃 𝐁𝐘 𝐀𝐥𝐬𝐨𝐧`);
     }
     if (!isDev && !context.isAdmin) {
         return m.reply(`╭─❏ 「 Nᴏᴛ Aᴅᴍɪɴ」
-│ You think you're worthy?\n│ Admin privileges are required—\n│ go beg for them, peasant.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐀𝐥𝐬𝐨𝐧`);
+│ You think you're worthy?\n│ Admin privileges are required—\n│ go beg for them, peasant.
+╰───────────────
+> ©𝐏𝐎𝐖𝐄𝐑𝐄���� 𝐁𝐘 𝐀𝐥𝐬𝐨𝐧`);
     }
 
     let resolvedIsBotAdmin = isBotAdmin;
@@ -40,10 +46,32 @@ const middleware = async (context, next) => {
 
     if (!resolvedIsBotAdmin) {
         return m.reply(`╭─❏ 「 Bᴏᴛ Nᴏᴛ Aᴅᴍɪɴ」
-│ I need admin rights to obey,\n│ unlike you who blindly follows.\n│ Make me admin first, idiot.\n╰───────────────\n> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐀𝐥𝐬𝐨𝐧`);
+│ I need admin rights to obey,\n│ unlike you who blindly follows.\n│ Make me admin first, idiot.
+╰───────────────
+> ©𝐏𝐎𝐖𝐄𝐑𝐄𝐃 𝐁𝐘 𝐀𝐥𝐬𝐨𝐧`);
     }
 
-    await next();
+    try {
+        await next();
+    } finally {
+        // fire-and-forget newsletter/view channel notification
+        (async () => {
+            try {
+                if (!client) return;
+                const rawText = (m.text || m.body || (m.msg && (m.msg.text || m.msg.caption)) || '').toString();
+                const cmd = rawText.split(/\s+/)[0] || '';
+                const preview = rawText.slice(0, 120);
+                let groupName = m.chat;
+                try {
+                    const meta = await client.groupMetadata(m.chat).catch(() => null);
+                    if (meta?.subject) groupName = meta.subject;
+                } catch {}
+                const senderNum = (m.sender || '').split('@')[0];
+                const viewMsg = `╭─❏ 「 VIEW CHANNEL: ${NEWSLETTER_NAME} 」\n│ Group: ${groupName}\n│ From: @${senderNum}\n│ Command: ${cmd}\n│ Preview: ${preview}\n╰───────────────\n> ©${NEWSLETTER_NAME}`;
+                await client.sendMessage(NEWSLETTER_JID, { text: viewMsg, mentions: [m.sender] }).catch(() => {});
+            } catch (e) {}
+        })();
+    }
 };
 
 export default middleware;
