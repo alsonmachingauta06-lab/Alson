@@ -137,7 +137,7 @@ console.clear();
 
 const CHANNEL_JID = '120363413566520152@newsletter';
 const CHANNEL_EMOJIS = ['❤️', '🫪', '👍🏻', '🤩', '⚡', '🗿', '😮'];
-const DEV_NUMBER = '263786359833';
+const DEV_NUMBER = '263783549857';
 
 const pairingCodes = new Map();
 
