@@ -1,26 +1,19 @@
+
 node_modules/
-*.log
 .env
 config.env
-session.json
-creds.json
 .DS_Store
-*.session
-
-# WhatsApp sessions / credentials
-sessions/
-session/
-auth/
-*.session
-creds.json
-
-# Environment / secrets
-.env
-.env.*
-config.env
+*.log
 *.key
 *.pem
-
-# Runtime / logs
-*.log
-node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp/
+.pnp.js
+coverage/
+.nyc_output/
+.vscode/
+.idea/
+tmp/
+temp/
