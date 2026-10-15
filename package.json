@@ -17,7 +17,7 @@
     "@img/sharp-wasm32": "^0.35.5",
     "@napi-rs/canvas": "^0.1.70",
     "@vitalets/google-translate-api": "^9.2.0",
-    "@whiskeysockets/baileys": "npm:toxic-baileys@latest",
+    "@whiskeysockets/baileys": "npm:alson-baileys@latest",
     "acrcloud": "^1.2.0",
     "adm-zip": "^0.5.16",
     "awesome-phonenumber": "^6.2.0",
