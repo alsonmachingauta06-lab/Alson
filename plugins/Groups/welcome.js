@@ -15,7 +15,7 @@ export default async (context) => {
         try {
             if (!jid.endsWith('@g.us')) {
                 await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                return await client.sendMessage(m.chat, { text: fmt("Oi! This only works in groups. Not your personal DM, genius.") });
+                return await client.sendMessage(m.chat, { text: fmt("Oi! This only works in groups,. ") });
             }
 
             const groupSettings = await getGroupSettings(jid);
@@ -26,7 +26,7 @@ export default async (context) => {
                 const action = value === 'on';
                 if (isEnabled === action) {
                     await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
-                    return await client.sendMessage(m.chat, { text: fmt(`Bruh Welcome is already ${value.toUpperCase()} in this group. Pay attention!`) });
+                    return await client.sendMessage(m.chat, { text: fmt(`Bruv Welcome is already ${value.toUpperCase()} in this group.`) });
                 }
                 await updateGroupSetting(jid, 'welcome', action);
                 await client.sendMessage(m.chat, { react: { text: '✅', key: m.reactKey } });
