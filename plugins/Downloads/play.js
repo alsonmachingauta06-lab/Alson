@@ -2,18 +2,105 @@ import fetch from 'node-fetch';
 import { sendInteractive } from '../../lib/sendInteractive.js';
 
 const NEXRAY_MP3 = 'https://api.nexray.web.id/downloader/ytmp3?url=';
+const MAX_AUDIO_BYTES = 30 * 1024 * 1024;
 
 function extractYtId(url) {
-  const m = url.match(
-    /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/|v\/))([A-Za-z0-9_-]{11})/
+  try {
+    const parsed = new URL(/^https?:\/\//i.test(url) ? url : `https://${url}`);
+    const host = parsed.hostname.replace(/^www\./, '').replace(/^m\./, '');
+
+    let id = null;
+    if (host === 'youtu.be') {
+      id = parsed.pathname.split('/').filter(Boolean)[0];
+    } else if (host === 'youtube.com' || host === 'music.youtube.com') {
+      id = parsed.searchParams.get('v');
+      if (!id) {
+        const match = parsed.pathname.match(/^\/(?:shorts|embed|v)\/([A-Za-z0-9_-]{11})/);
+        id = match?.[1];
+      }
+    }
+
+    return id && /^[A-Za-z0-9_-]{11}$/.test(id) ? id : null;
+  } catch {
+    return null;
+  }
+}
+
+async function getNexrayAudioUrl(videoUrl) {
+  const response = await fetch(
+    NEXRAY_MP3 + encodeURIComponent(videoUrl),
+    {
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+      timeout: 30000
+    }
   );
-  return m ? m[1] : null;
+
+  if (!response.ok) throw new Error(`Nexray API HTTP ${response.status}`);
+
+  const data = await response.json();
+  if (!data.status || !data.result?.url) {
+    throw new Error('Nexray did not return an audio URL');
+  }
+
+  return {
+    url: data.result.url,
+    title: data.result.title || 'Unknown Song'
+  };
+}
+
+async function downloadVerifiedAudio(url) {
+  const response = await fetch(url, {
+    headers: { 'User-Agent': 'Mozilla/5.0' },
+    timeout: 90000
+  });
+
+  if (!response.ok) {
+    throw new Error(`Audio download HTTP ${response.status}`);
+  }
+
+  const type = (response.headers.get('content-type') || '')
+    .split(';')[0].trim().toLowerCase();
+
+  if (
+    !type.startsWith('audio/') &&
+    type !== 'application/octet-stream' &&
+    type !== 'binary/octet-stream'
+  ) {
+    await response.body?.cancel();
+    throw new Error(`Provider returned non-audio content: ${type || 'unknown type'}`);
+  }
+
+  const declaredLength = Number(response.headers.get('content-length') || 0);
+  if (declaredLength > MAX_AUDIO_BYTES) {
+    await response.body?.cancel();
+    throw new Error('Audio exceeds the 30 MB limit');
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+
+  if (buffer.length < 100000) {
+    throw new Error(`Audio too small (${buffer.length} bytes); refusing to send`);
+  }
+
+  if (buffer.length > MAX_AUDIO_BYTES) {
+    throw new Error('Downloaded audio exceeds the 30 MB limit');
+  }
+
+  const isMp3 =
+    buffer.subarray(0, 3).toString() === 'ID3' ||
+    (buffer[0] === 0xff && (buffer[1] & 0xe0) === 0xe0);
+
+  if (!isMp3) {
+    throw new Error('Downloaded file does not have a recognised MP3 signature');
+  }
+
+  return buffer;
 }
 
 export default {
   name: 'play',
   aliases: ['ply', 'playy', 'pl'],
-  description: 'Downloads songs from YouTube and sends audio',
+  description: 'Downloads songs from YouTube and sends verified audio',
 
   run: async (context) => {
     const { client, m, text } = context;
@@ -30,9 +117,7 @@ export default {
           react: { text: '❌', key: m.reactKey }
         }).catch(() => {});
 
-        return sendInteractive(
-          client,
-          m,
+        return sendInteractive(client, m,
           `╭─❏ 「 PLAY」
 │ Give me a song name or YouTube link.
 │ Example: .play harlem shake
@@ -47,131 +132,71 @@ export default {
           react: { text: '❌', key: m.reactKey }
         }).catch(() => {});
 
-        return sendInteractive(
-          client,
-          m,
+        return sendInteractive(client, m,
           `│ Song title must be 100 characters or less.
 ╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐀𝐥𝐬𝐨𝐧`
         );
       }
 
-      const isYoutubeLink =
-        /(?:https?:\/\/)?(?:youtu\.be\/|(?:www\.|m\.)?youtube\.com\/(?:watch\?v=|v\/|embed\/|shorts\/)[a-zA-Z0-9_-]{11})/i.test(query);
-
-      let audioUrl;
+      let videoUrl;
       let filename = 'Unknown Song';
       let thumbnail = '';
       let sourceUrl = '';
 
+      const isYoutubeLink =
+        /(?:https?:\/\/)?(?:youtu\.be\/|(?:www\.|m\.)?youtube\.com\/(?:watch\?v=|v\/|embed\/|shorts\/))[A-Za-z0-9_-]{11}/i.test(query);
+
       if (isYoutubeLink) {
-        /*
-         * PRIMARY: Sidycoders
-         * FALLBACK: NEXRAY
-         */
-        let primaryFailed = false;
+        const id = extractYtId(query);
+        if (!id) throw new Error('Invalid YouTube link');
 
-        try {
-          const response = await fetch(
-            `https://api.sidycoders.xyz/api/ytdl?url=${encodeURIComponent(query)}&format=mp3&apikey=memberdycoders`,
-            { headers: { 'User-Agent': 'Mozilla/5.0' } }
-          );
-
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-          const data = await response.json();
-
-          if (!data.status || !data.cdn) {
-            throw new Error('Primary audio provider failed');
-          }
-
-          audioUrl = data.cdn;
-          filename = data.title || filename;
-          sourceUrl = query;
-        } catch (primaryError) {
-          primaryFailed = true;
-          console.error('[PLAY] Sidycoders failed:', primaryError.message);
-        }
-
-        if (primaryFailed) {
-          const id = extractYtId(query);
-
-          if (!id) throw new Error('Invalid YouTube link');
-
-          const fullUrl = `https://youtube.com/watch?v=${id}`;
-
-          const response = await fetch(
-            NEXRAY_MP3 + encodeURIComponent(fullUrl),
-            {
-              headers: { 'User-Agent': 'Mozilla/5.0' },
-              timeout: 30000
-            }
-          );
-
-          if (!response.ok) {
-            throw new Error(`Fallback HTTP ${response.status}`);
-          }
-
-          const data = await response.json();
-
-          if (!data.status || !data.result?.url) {
-            throw new Error('Fallback audio provider failed');
-          }
-
-          audioUrl = data.result.url;
-          filename = data.result.title || filename;
-          sourceUrl = fullUrl;
-        }
+        videoUrl = `https://youtube.com/watch?v=${id}`;
+        sourceUrl = videoUrl;
       } else {
-        /*
-         * PRIMARY: Apiziaul search
-         * FALLBACK: NEXRAY requires a YouTube URL,
-         * so we use YouTube search only if the primary search fails.
-         */
-        let searchWorked = false;
+        const { execFile } = await import('node:child_process');
+        const { promisify } = await import('node:util');
+        const execFileAsync = promisify(execFile);
 
-        try {
-          const response = await fetch(
-            `https://apiziaul.vercel.app/api/downloader/ytplaymp3?query=${encodeURIComponent(query)}`,
-            { headers: { 'User-Agent': 'Mozilla/5.0' } }
-          );
+        const { stdout } = await execFileAsync(
+          'yt-dlp',
+          [
+            '--dump-single-json',
+            '--no-warnings',
+            '--skip-download',
+            '--no-playlist',
+            `ytsearch1:${query}`
+          ],
+          { timeout: 60000, maxBuffer: 5 * 1024 * 1024 }
+        );
 
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const searchData = JSON.parse(stdout);
+        const result = searchData.entries?.[0] || searchData;
+        const id = result.id;
 
-          const data = await response.json();
-
-          if (!data.status || !data.result?.downloadUrl) {
-            throw new Error('Primary search provider failed');
-          }
-
-          audioUrl = data.result.downloadUrl;
-          filename = data.result.title || filename;
-          thumbnail = data.result.thumbnail || '';
-          sourceUrl = data.result.videoUrl || '';
-          searchWorked = true;
-        } catch (primaryError) {
-          console.error('[PLAY] Apiziaul failed:', primaryError.message);
+        if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) {
+          throw new Error('yt-dlp search returned no valid YouTube video');
         }
 
-        /*
-         * We intentionally do not add another search dependency here.
-         * The existing search provider remains primary.
-         */
-        if (!searchWorked) {
-          throw new Error('Song search provider unavailable');
-        }
+        videoUrl = `https://www.youtube.com/watch?v=${id}`;
+        filename = result.title || filename;
+        thumbnail = result.thumbnail || '';
+        sourceUrl = videoUrl;
       }
 
-      await client.sendMessage(m.chat, {
-        react: { text: '✅', key: m.reactKey }
-      });
+      // Use Nexray for the actual audio; never trust Apiziaul's download URL.
+      const audioInfo = await getNexrayAudioUrl(videoUrl);
+      filename = audioInfo.title || filename;
+
+      // Validate the actual bytes before sending anything to WhatsApp.
+      const audioBuffer = await downloadVerifiedAudio(audioInfo.url);
 
       const safeName = String(filename)
         .replace(/[<>:"/\\|?*]/g, '_')
         .trim() || 'youtube-song';
 
       await client.sendMessage(m.chat, {
-        audio: { url: audioUrl },
+        audio: audioBuffer,
         mimetype: 'audio/mpeg',
         fileName: `${safeName}.mp3`,
         contextInfo: thumbnail
@@ -189,14 +214,7 @@ export default {
       });
 
       await client.sendMessage(m.chat, {
-        document: { url: audioUrl },
-        mimetype: 'audio/mpeg',
-        fileName: `${safeName}.mp3`,
-        caption:
-          `╭─❏ 「 PLAY」\n` +
-          `│ ${filename}\n` +
-          `╰───────────────\n` +
-          `> ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐀𝐥𝐬𝐨𝐧`
+        react: { text: '✅', key: m.reactKey }
       });
 
     } catch (error) {
@@ -206,11 +224,9 @@ export default {
         react: { text: '❌', key: m.reactKey }
       }).catch(() => {});
 
-      return sendInteractive(
-        client,
-        m,
+      return sendInteractive(client, m,
         `╭─❏ 「 PLAY ERROR」
-│ The audio service is temporarily unavailable.
+│ Couldn't retrieve valid MP3 audio.
 │ Please try again or try another song.
 ╰───────────────
 > ©𝐏𝐨𝐰𝐞𝐫𝐞𝐝 𝐁𝐲 𝐀𝐥𝐬𝐨𝐧`
