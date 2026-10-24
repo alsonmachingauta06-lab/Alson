@@ -1,4 +1,19 @@
-import { CHANNEL_INVITE } from './lib/channelConfig.js';
+const express = require('express');
+const app = express();
+
+app.get('/', (req, res) => {
+  res.send('Alson is alive! Bot is running ✅');
+});
+
+app.get('/ping', (req, res) => {
+  res.send('pong - Alson UP');
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Alson web server running on port ${PORT}`);
+});
+{ CHANNEL_INVITE } from './lib/channelConfig.js';
 import fs from 'fs';
 import os from 'os';
 import v8 from 'v8';
