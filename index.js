@@ -59,7 +59,6 @@ app.listen(PORT, () => {
     const { spawn: _sp } = await import('child_process');
     _sp(process.execPath, process.argv.slice(1), { stdio: 'inherit', detached: false });
     process.exit(0);
-  }
 }
 
 const _SUPPRESS_LOG_PREFIXES = [
