@@ -8,13 +8,6 @@ import { dirname } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-app.get('/', (req, res) => {
-  res.send('Alson is alive! Bot is running ✅');
-});
-
-app.get('/ping', (req, res) => {
-  res.send('pong - Alson UP');
-});
 
 
   const _ebPath = path.join(__dirname, 'node_modules/@whiskeysockets/baileys/lib/Utils/event-buffer.js');
@@ -132,6 +125,14 @@ process.env.FFMPEG_PATH = ffmpegInstaller.path;
 
 const app = express();
 const port = process.env.PORT || 10000;
+
+app.get('/', (req, res) => {
+  res.send('Alson is alive! Bot is running ✅');
+});
+
+app.get('/ping', (req, res) => {
+  res.send('pong - Alson UP');
+});
 // Session-specific stores are created inside each runtime.
 // No WhatsApp account shares another account's store/auth directory.
 
