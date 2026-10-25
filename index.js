@@ -39,11 +39,15 @@ const __dirname = dirname(__filename);
     }
   }
 
-  if (_needsRestart) {
+    if (_needsRestart) {
+    console.log('[AutoPatch] Restarting after patch...');
     const { spawn: _sp } = await import('child_process');
-    _sp(process.execPath, process.argv.slice(1), { stdio: 'inherit', detached: false });
+    _sp(process.execPath, process.argv.slice(1), {
+      stdio: 'inherit',
+      detached: false
+    });
     process.exit(0);
-}
+  }
 
 const _SUPPRESS_LOG_PREFIXES = [
     'Closing session',
