@@ -1,4 +1,15 @@
+import { CHANNEL_INVITE } from './lib/channelConfig.js';
+import fs from 'fs';
+import os from 'os';
+import v8 from 'v8';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import express from 'express';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const app = express();
 
 app.get('/', (req, res) => {
@@ -13,18 +24,8 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Alson web server running on port ${PORT}`);
 });
-import { CHANNEL_INVITE } from './lib/channelConfig.js';
-import fs from 'fs';
-import os from 'os';
-import v8 from 'v8';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
-{
   const _ebPath = path.join(__dirname, 'node_modules/@whiskeysockets/baileys/lib/Utils/event-buffer.js');
   const _usPath = path.join(__dirname, 'node_modules/@whiskeysockets/baileys/lib/Socket/usync.js');
   let _needsRestart = false;
