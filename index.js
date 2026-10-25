@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Alson web server running on port ${PORT}`);
 });
-{ CHANNEL_INVITE } from './lib/channelConfig.js';
+import { CHANNEL_INVITE } from './lib/channelConfig.js';
 import fs from 'fs';
 import os from 'os';
 import v8 from 'v8';
