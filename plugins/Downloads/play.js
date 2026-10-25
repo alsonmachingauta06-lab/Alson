@@ -109,6 +109,7 @@ export default {
       react: { text: '⌛', key: m.reactKey }
     });
 
+    let stage = 'song search';
     try {
       const query = text ? text.trim() : '';
 
@@ -185,16 +186,21 @@ export default {
       }
 
       // Use Nexray for the actual audio; never trust Apiziaul's download URL.
+      stage = 'Nexray audio URL';
       const audioInfo = await getNexrayAudioUrl(videoUrl);
       filename = audioInfo.title || filename;
 
       // Validate the actual bytes before sending anything to WhatsApp.
+      stage = 'audio download and validation';
       const audioBuffer = await downloadVerifiedAudio(audioInfo.url);
+      console.log(`[PLAY] Verified MP3: ${audioBuffer.length} bytes`);
 
       const safeName = String(filename)
         .replace(/[<>:"/\\|?*]/g, '_')
         .trim() || 'youtube-song';
 
+      stage = 'WhatsApp audio upload';
+      console.log('[PLAY] Starting WhatsApp audio upload');
       await client.sendMessage(m.chat, {
         audio: audioBuffer,
         mimetype: 'audio/mpeg',
@@ -218,7 +224,8 @@ export default {
       });
 
     } catch (error) {
-      console.error('[PLAY] Download failed:', error.message);
+      console.error(`[PLAY] Failed at stage: ${stage}`);
+      console.error('[PLAY] Error:', error.stack || error.message);
 
       await client.sendMessage(m.chat, {
         react: { text: '❌', key: m.reactKey }
