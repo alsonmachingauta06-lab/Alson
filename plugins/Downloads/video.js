@@ -159,6 +159,56 @@ async function downloadWithYtDlp(videoUrl) {
   }
 }
 
+
+async function getFfmpegPath() {
+  try {
+    const installer = await import('@ffmpeg-installer/ffmpeg');
+    if (installer.default?.path) return installer.default.path;
+  } catch (error) {
+    console.log('[VIDEO] Using system FFmpeg:', error.message);
+  }
+
+  return 'ffmpeg';
+}
+
+async function convertToMp4(inputPath, directory) {
+  const outputPath = path.join(directory, 'whatsapp-compatible.mp4');
+
+  const ffmpegPath = await getFfmpegPath();
+  await execFileAsync(ffmpegPath, [
+    '-hide_banner',
+    '-loglevel', 'error',
+    '-y',
+    '-i', inputPath,
+    '-map', '0:v:0',
+    '-map', '0:a?',
+    '-c:v', 'libx264',
+    '-preset', 'veryfast',
+    '-crf', '28',
+    '-pix_fmt', 'yuv420p',
+    '-c:a', 'aac',
+    '-b:a', '128k',
+    '-movflags', '+faststart',
+    '-f', 'mp4',
+    outputPath
+  ], {
+    timeout: 480000,
+    maxBuffer: 8 * 1024 * 1024
+  });
+
+  const stat = await fs.stat(outputPath);
+
+  if (!stat.size) {
+    throw new Error('FFmpeg produced an empty MP4 file');
+  }
+
+  if (stat.size > MAX_VIDEO_SIZE) {
+    throw new Error('Converted MP4 exceeds the 64 MB WhatsApp limit');
+  }
+
+  return outputPath;
+}
+
 function safeFilename(name) {
   return String(name || 'youtube-video')
     .replace(/[<>:"/\\|?*\x00-\x1f]/g, '_')
@@ -292,6 +342,12 @@ export default async (context) => {
 
       console.log('[VIDEO] yt-dlp download and merge succeeded.');
     }
+
+    stage = 'MP4 conversion';
+    console.log('[VIDEO] Converting video to H.264/AAC MP4.');
+
+    const mp4Path = await convertToMp4(media.url, temporaryDirectory);
+    media = { url: mp4Path };
 
     stage = 'WhatsApp video upload';
 
