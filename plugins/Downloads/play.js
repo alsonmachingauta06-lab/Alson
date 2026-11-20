@@ -44,7 +44,7 @@ timeout: 30000
 );
 
 if (!response.ok) {
-throw new Error("Audio provider HTTP ${response.status}");
+throw new Error(`Audio provider HTTP ${response.status}`);
 }
 
 const data = await response.json();
@@ -66,7 +66,7 @@ timeout: 90000
 });
 
 if (!response.ok) {
-throw new Error("Audio download HTTP ${response.status}");
+throw new Error(`Audio download HTTP ${response.status}`);
 }
 
 const type = (response.headers.get('content-type') || '')
@@ -79,7 +79,7 @@ if (
 !['application/octet-stream', 'binary/octet-stream'].includes(type)
 ) {
 await response.body?.cancel();
-throw new Error("Download URL returned non-audio content: ${type || 'unknown'}");
+throw new Error(`Download URL returned non-audio content: ${type || 'unknown'}`);
 }
 
 const length = Number(response.headers.get('content-length') || 0);
@@ -92,7 +92,7 @@ throw new Error('Audio exceeds the 30 MB limit');
 const buffer = Buffer.from(await response.arrayBuffer());
 
 if (buffer.length < 100000) {
-throw new Error("Audio file is too small (${buffer.length} bytes)");
+throw new Error(`Audio file is too small (${buffer.length} bytes)`);
 }
 
 if (buffer.length > MAX_AUDIO_BYTES) {
