@@ -66,7 +66,17 @@ timeout: 90000
 });
 
 if (!response.ok) {
-throw new Error(`Audio download HTTP ${response.status}`);
+  let host = 'unknown';
+  let finalHost = 'unknown';
+  try { host = new URL(url).hostname; } catch {}
+  try { finalHost = new URL(response.url).hostname; } catch {}
+  console.error('[PLAY] Download diagnostic:', {
+    status: response.status,
+    requestedHost: host,
+    finalHost,
+    contentType: response.headers.get('content-type')
+  });
+  throw new Error(`Audio download HTTP ${response.status}`);
 }
 
 const type = (response.headers.get('content-type') || '')
