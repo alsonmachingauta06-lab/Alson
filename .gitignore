@@ -17,3 +17,24 @@ coverage/
 .idea/
 tmp/
 temp/
+
+
+# ALSON-XMD private data
+/auth/creds.json
+/auth/sessions/
+/backups/
+/whatsasena.json
+/branding-backup/whatsasena.json
+.env*
+*.sqlite
+*.sqlite3
+
+# ALSON-XMD private runtime data
+/auth/creds.json
+/auth/sessions/
+/backups/
+/whatsasena.json
+/branding-backup/whatsasena.json
+.env*
+*.sqlite
+*.sqlite3

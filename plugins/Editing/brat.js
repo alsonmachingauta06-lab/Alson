@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Sticker, StickerTypes } from 'wa-sticker-formatter';
+
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
@@ -25,7 +25,8 @@ export default {
         }
 
         try {
-            await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
+            const { Sticker, StickerTypes } = await import('wa-sticker-formatter');
+        await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
             const apiUrl = `https://api.nexray.web.id/maker/brat?text=${encodeURIComponent(text)}`;
             

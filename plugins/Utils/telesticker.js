@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { Sticker, StickerTypes } from 'wa-sticker-formatter';
+
 import { promises as fs } from 'fs';
 import path from 'path';
 import { sendInteractive } from '../../lib/sendInteractive.js';
@@ -9,6 +9,7 @@ export default async (context) => {
     await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
     try {
+        const { Sticker, StickerTypes } = await import('wa-sticker-formatter');
         if (!text) {
             await client.sendMessage(m.chat, { react: { text: '❌', key: m.reactKey } }).catch(() => {});
             return sendInteractive(client, m, `╭─❏ 「 Tᴇʟᴇɢʀᴀᴍ Sᴛɪᴄᴋᴇʀ」

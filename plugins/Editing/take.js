@@ -1,4 +1,4 @@
-import { Sticker, StickerTypes } from 'wa-sticker-formatter';
+
 import { promises as fs } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -13,6 +13,7 @@ export default async (context) => {
     await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
     try {
+        const { Sticker, StickerTypes } = await import('wa-sticker-formatter');
         let mediaMsg = null;
 
         if (m.message?.imageMessage) {

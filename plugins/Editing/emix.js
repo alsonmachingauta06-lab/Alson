@@ -1,4 +1,4 @@
-import { Sticker, createSticker, StickerTypes } from 'wa-sticker-formatter';
+
 import axios from 'axios';
 import { sendInteractive } from '../../lib/sendInteractive.js';
 export default async (context) => {
@@ -27,7 +27,8 @@ if (!text) {
 
   await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
   try {
-    const response = await axios.get(`https://levanter.onrender.com/emix?q=${emoji1}${emoji2}`);
+    const { Sticker, StickerTypes } = await import('wa-sticker-formatter');
+        const response = await axios.get(`https://levanter.onrender.com/emix?q=${emoji1}${emoji2}`);
 
     if (response.data.status === true) {
     

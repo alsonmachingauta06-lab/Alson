@@ -1,4 +1,4 @@
-import { Sticker, createSticker, StickerTypes } from 'wa-sticker-formatter';let canvacord = null; try { canvacord = (await import("canvacord")).default ?? (await import("canvacord")); } catch {}
+let canvacord = null; try { canvacord = (await import("canvacord")).default ?? (await import("canvacord")); } catch {}
 import { sendInteractive } from '../../lib/sendInteractive.js';
 
 export default async (context) => {
@@ -12,6 +12,7 @@ await client.sendMessage(m.chat, { react: { text: '⌛', key: m.reactKey } });
 
 try {
 
+        const { Sticker, StickerTypes } = await import('wa-sticker-formatter');
         if (m.quoted) {
             try {
                 img = await client.profilePictureUrl(m.quoted.sender, 'image')

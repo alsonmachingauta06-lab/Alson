@@ -1,4 +1,4 @@
-import { Sticker, StickerTypes } from 'wa-sticker-formatter';
+
 import { promises as fs } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -28,7 +28,8 @@ export default async (context) => {
         context,
         run: async ({ client, m }) => {
             try {
-                let mediaMsg = null;
+                const { Sticker, StickerTypes } = await import('wa-sticker-formatter');
+        let mediaMsg = null;
                 let mediaType = null;
 
                 if (m.message?.imageMessage) {
