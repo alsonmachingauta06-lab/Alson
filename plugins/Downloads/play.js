@@ -93,6 +93,16 @@ async function downloadAudio(url) {
   });
 
   if (!response.ok) {
+    let host = 'unknown';
+    let finalHost = 'unknown';
+    try { host = new URL(url).hostname; } catch {}
+    try { finalHost = new URL(response.url).hostname; } catch {}
+    console.error('[PLAY] Download diagnostic:', {
+      status: response.status,
+      requestedHost: host,
+      finalHost,
+      contentType: response.headers.get('content-type')
+    });
     throw new Error(`Nexray download HTTP ${response.status}`);
   }
 
