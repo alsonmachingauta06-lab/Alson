@@ -192,21 +192,7 @@ try {
   await client.sendMessage(m.chat, {
     audio,
     mimetype: 'audio/mpeg',
-    fileName: `${cleanFilename(filename)}.mp3`,
-    ...(thumbnail
-      ? {
-          contextInfo: {
-            externalAdReply: {
-              title: filename.slice(0, 60),
-              body: 'ALSON-XMD',
-              thumbnailUrl: thumbnail,
-              sourceUrl: videoUrl,
-              mediaType: 1,
-              renderLargerThumbnail: true
-            }
-          }
-        }
-      : {})
+    fileName: `${cleanFilename(filename)}.mp3`
   });
 
   await react('✅');

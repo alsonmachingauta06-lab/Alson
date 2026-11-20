@@ -72,6 +72,7 @@ export default {
 
         let runtime = null;
         let pairSocket = null;
+        let pairingQrSeen = false;
 
         try {
             /*
@@ -319,10 +320,13 @@ export default {
             pairSocket.ev.on(
                 'connection.update',
                 async ({
+                    qr,
                     connection,
                     lastDisconnect,
                     isNewLogin
                 }) => {
+
+                    if (qr) pairingQrSeen = true;
 
                     console.log(
                         `[ALSON-XMD] ${number} connection: ${connection || 'unknown'}`
@@ -338,6 +342,28 @@ export default {
                         console.log(
                             `[ALSON-XMD] ✅ ${number} successfully connected`
                         );
+
+                        // Hand the linked account to the full bot runtime.
+                        if (!runtime.handoffStarted) {
+                            runtime.handoffStarted = true;
+                            setTimeout(async () => {
+                                try {
+                                    const { startToxic } = await import('../../index.js');
+                                    await startToxic(number, {
+                                        sessionId: runtime.sessionId
+                                    });
+                                    console.log(
+                                        `[ALSON-XMD] Full bot runtime started for ${number}`
+                                    );
+                                } catch (handoffError) {
+                                    runtime.handoffStarted = false;
+                                    console.error(
+                                        `[ALSON-XMD] Runtime handoff failed for ${number}:`,
+                                        handoffError
+                                    );
+                                }
+                            }, 1200);
+                        }
 
                         return;
                     }
@@ -383,8 +409,18 @@ export default {
 
             if (state.creds.registered) {
 
-                markConnected(
-                    runtime.sessionId
+                console.log(
+                    `[ALSON-XMD] Saved WhatsApp credentials found for ${number}. Starting full bot runtime...`
+                );
+
+                const { startToxic } = await import('../../index.js');
+
+                await startToxic(number, {
+                    sessionId: runtime.sessionId
+                });
+
+                console.log(
+                    `[ALSON-XMD] Full bot runtime started from saved credentials for ${number}`
                 );
 
                 await client.sendMessage(m.chat, {
@@ -426,6 +462,12 @@ export default {
 
                 let settled = false;
 
+                if (pairingQrSeen) {
+                    settled = true;
+                    resolve();
+                    return;
+                }
+
                 const timeout = setTimeout(() => {
 
                     if (settled) return;
@@ -434,11 +476,11 @@ export default {
 
                     reject(
                         new Error(
-                            'WhatsApp pairing socket did not become ready within 30 seconds.'
+                            'WhatsApp pairing socket did not become ready within 60 seconds.'
                         )
                     );
 
-                }, 30000);
+                }, 60000);
 
 
                 const onUpdate = ({ qr, connection }) => {
@@ -571,6 +613,14 @@ export default {
             );
 
         } catch (error) {
+
+            // Close only the failed temporary socket; preserve auth files.
+            if (pairSocket) {
+                try { pairSocket.ev?.removeAllListeners(); } catch {}
+                try { pairSocket.end(new Error('Pairing attempt failed')); } catch {}
+                try { pairSocket.ws?.close(); } catch {}
+            }
+            if (runtime) runtime.client = null;
 
             console.error(
                 '[ALSON-XMD] Pair error:',
