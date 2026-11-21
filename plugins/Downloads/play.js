@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import yts from 'yt-search';
 import { sendInteractive } from '../../lib/sendInteractive.js';
+import { getYtDlpCookieArgs } from '../../lib/ytDlpCookies.js';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import fs from 'node:fs/promises';
@@ -150,6 +151,7 @@ async function downloadWithYtDlp(videoUrl) {
       '--audio-format', 'mp3',
       '--audio-quality', '5',
       '-o', output,
+      ...await getYtDlpCookieArgs(),
       videoUrl
     ], {
       timeout: 480000,

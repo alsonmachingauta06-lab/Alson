@@ -1,6 +1,7 @@
 import yts from 'yt-search';
 import fetch from 'node-fetch';
 import { sendInteractive } from '../../lib/sendInteractive.js';
+import { getYtDlpCookieArgs } from '../../lib/ytDlpCookies.js';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import fs from 'node:fs/promises';
@@ -128,6 +129,7 @@ async function downloadWithYtDlp(videoUrl) {
       '-f', 'bv*[height<=360][filesize<55M]+ba[filesize<8M]/b[height<=360][filesize<63M]/b[filesize<63M]',
       '--merge-output-format', 'mp4',
       '-o', output,
+      ...await getYtDlpCookieArgs(),
       videoUrl
     ], {
       timeout: 480000,
