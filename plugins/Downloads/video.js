@@ -126,10 +126,10 @@ async function downloadWithYtDlp(videoUrl) {
       '--fragment-retries', '3',
       '--no-js-runtimes', '--js-runtimes', 'node',
       '--max-filesize', '63M',
-      '-f', 'bv*[height<=360][filesize<55M]+ba[filesize<8M]/b[height<=360][filesize<63M]/b[filesize<63M]',
+      '-f', 'bv*[height<=360]+ba/b[height<=360]/b',
       '--merge-output-format', 'mp4',
       '-o', output,
-      ...await getYtDlpCookieArgs(),
+      ...await getYtDlpCookieArgs(directory),
       videoUrl
     ], {
       timeout: 480000,

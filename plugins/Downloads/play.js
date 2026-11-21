@@ -147,11 +147,12 @@ async function downloadWithYtDlp(videoUrl) {
       '--retries', '3',
       '--fragment-retries', '3',
       '--max-filesize', '30M',
+      '-f', 'bestaudio/best',
       '-x',
       '--audio-format', 'mp3',
       '--audio-quality', '5',
       '-o', output,
-      ...await getYtDlpCookieArgs(),
+      ...await getYtDlpCookieArgs(directory),
       videoUrl
     ], {
       timeout: 480000,
