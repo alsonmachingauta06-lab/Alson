@@ -177,6 +177,10 @@ async function downloadWithYtDlp(videoUrl) {
 
     return { buffer, directory };
   } catch (error) {
+    const stderr = String(error.stderr || '').trim();
+    if (stderr) {
+      console.error('[PLAY] yt-dlp stderr:', stderr.slice(-6000));
+    }
     await fs.rm(directory, { recursive: true, force: true }).catch(() => {});
     throw error;
   }
