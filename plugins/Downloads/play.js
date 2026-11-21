@@ -143,6 +143,7 @@ async function downloadWithYtDlp(videoUrl) {
       '--no-warnings',
       '--no-playlist',
       '--no-progress',
+      '--js-runtimes', 'node',
       '--socket-timeout', '20',
       '--retries', '3',
       '--fragment-retries', '3',
