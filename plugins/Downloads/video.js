@@ -23,7 +23,7 @@ async function downloadFromApi(url, provider) {
       'User-Agent': 'Mozilla/5.0',
       Accept: 'application/json'
     },
-    timeout: 90000
+    timeout: 15000
   });
 
   if (!response.ok) {

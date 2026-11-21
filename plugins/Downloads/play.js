@@ -67,7 +67,7 @@ async function getAudioInfo(videoUrl) {
     NEXRAY_MP3 + encodeURIComponent(videoUrl),
     {
       headers: { 'User-Agent': 'Mozilla/5.0' },
-      timeout: 30000
+      timeout: 12000
     }
   );
 
