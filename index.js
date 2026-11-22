@@ -514,13 +514,25 @@ async function startToxic(ownerNumber = DEFAULT_OWNER_NUMBER, options = {}) {
     }, 30 * 1000);
 
     if (runtime.client) {
+      const oldClient = runtime.client;
       try {
         runtime.shuttingDown = true;
-        runtime.client.ev.removeAllListeners();
-        runtime.client.ws?.removeAllListeners();
-        try { runtime.client.end(new Error("Restarting client")); } catch (e) {}
-        try { runtime.client.ws?.close(); } catch (e) {}
-      } catch (e) {} finally {
+
+        // Keep the WebSocket error listener alive during shutdown.
+        try {
+          oldClient.ws?.on?.('error', () => {});
+        } catch (e) {}
+
+        try {
+          oldClient.ev?.removeAllListeners();
+        } catch (e) {}
+
+        // End gracefully; do not inject an Error into an unfinished socket.
+        try {
+          oldClient.end();
+        } catch (e) {}
+
+      } finally {
         runtime.client = null;
         runtime.shuttingDown = false;
       }
@@ -769,6 +781,8 @@ async function startToxic(ownerNumber = DEFAULT_OWNER_NUMBER, options = {}) {
       client.sendMessage = async function (jid, content, options = {}) {
 
       const skip =
+        content?.audio ||
+        content?.video ||
         content?.react ||
         content?.delete ||
         content?.edit ||
