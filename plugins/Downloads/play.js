@@ -10,6 +10,79 @@ import path from 'node:path';
 
 const execFileAsync = promisify(execFile);
 
+async function searchYouTubeVideo(query, label) {
+  let primaryError;
+
+  try {
+    const results = await yts(query);
+    const video = results?.videos?.[0];
+
+    if (video?.videoId || video?.url) {
+      const videoId = video.videoId ||
+        video.url?.match(/[?&]v=([A-Za-z0-9_-]{11})/)?.[1];
+
+      return {
+        ...video,
+        videoId,
+        url: video.url || `https://www.youtube.com/watch?v=${videoId}`
+      };
+    }
+
+    primaryError = new Error('yt-search returned no usable video');
+    console.error(`[${label}] yt-search returned no usable result.`);
+  } catch (error) {
+    primaryError = error;
+    console.error(
+      `[${label}] yt-search failed:`,
+      error?.stack || error?.message || String(error)
+    );
+  }
+
+  try {
+    console.log(`[${label}] Trying yt-dlp search fallback.`);
+
+    const { stdout } = await execFileAsync('yt-dlp', [
+      '--no-warnings',
+      '--flat-playlist',
+      '--dump-single-json',
+      '--skip-download',
+      `ytsearch1:${query}`
+    ], {
+      timeout: 60000,
+      maxBuffer: 4 * 1024 * 1024
+    });
+
+    const data = JSON.parse(stdout.trim());
+    const entry = data.entries?.[0] || data;
+
+    if (!entry?.id) {
+      throw new Error('yt-dlp search returned no video ID');
+    }
+
+    const url = entry.webpage_url ||
+      `https://www.youtube.com/watch?v=${entry.id}`;
+
+    return {
+      videoId: entry.id,
+      url,
+      title: entry.title || '',
+      thumbnail: entry.thumbnail || ''
+    };
+  } catch (error) {
+    const detail = error?.stderr || error?.stack ||
+      error?.message || String(error);
+
+    console.error(`[${label}] yt-dlp search fallback failed:`,
+      String(detail).slice(0, 1500));
+
+    throw new Error(
+      `YouTube search failed. yt-search: ${primaryError?.message || 'no result'}; ` +
+      `yt-dlp: ${error?.message || String(error)}`
+    );
+  }
+}
+
+
 const NEXRAY_MP3 = 'https://api.nexray.web.id/downloader/ytmp3?url=';
 const MAX_AUDIO_BYTES = 30 * 1024 * 1024;
 
@@ -243,8 +316,7 @@ export default {
 
         videoUrl = `https://www.youtube.com/watch?v=${id}`;
       } else {
-        const results = await yts(query);
-        const video = results.videos?.[0];
+        const video = await searchYouTubeVideo(query, 'PLAY');
 
         if (!video?.videoId || !/^[A-Za-z0-9_-]{11}$/.test(video.videoId)) {
           throw new Error('No matching YouTube video was found.');
